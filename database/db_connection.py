@@ -39,4 +39,4 @@ def create_table():
     conn.commit()
     
     cursor.close()
-    conn.close
+    conn.close()
