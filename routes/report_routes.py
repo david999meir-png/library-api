@@ -20,7 +20,7 @@ def get_summary():
     return {**total_books, **available_book, **borrowed_bookd, **get_sum_active_members}
 
 
-@router.get("")
+@router.get("/reports/books-by-genre")
 def get_summary_by_ganre():
     logging.info("Request for a summary by genre has been received.")
 

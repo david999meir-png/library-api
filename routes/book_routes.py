@@ -79,6 +79,7 @@ def borrow_book(id: int, member_id: int):
         raise HTTPException(status_code=400, detail=f"member id {member_id} he isn't active.")
     
     book_details = BookDB.get_book_by_id(id)
+    
     if book_details is None:
         logging.error(f"book id {id} not found")
         raise HTTPException(status_code=404, detail=f"book id {id} not found")
@@ -112,7 +113,7 @@ def return_book(id: int, member_id: int):
         logging.error(f"book id {id} not found")
         raise HTTPException(status_code=404, detail=f"book id {id} not found")
     
-    member_found = MemberDB.active_member(member_id)
+    member_found = MemberDB.get_members_by_id(member_id)
 
     if member_found is None:
         logging.error(f"member id {id} not found")
