@@ -9,13 +9,14 @@ The system will monitor the number of books per member and issue organized repor
 ##
 # docker requirements #
 ## run this docker first! ##
-```docker run mysql_library my-mysql \```  
+```docker run --mysql_library my-mysql \```  
 ```-e MYSQL_ROOT_PASSWORE=root \```  
 ```-e MYSQL_DATABASE=library_db \```  
 ```-p 3306:3306 \```  
 ```-d mysql:latest```  
 ##
 # folders structure #  
+# you must run it from app!!! #
 library-api/  
 │  
 ├── app/  
@@ -103,6 +104,8 @@ GET | /reports/top-member | the most active member
 http requests -> fastapi -> router -> endpoints -> db_dle -> respond
 ##
 # Running instructions #  
+# you must run it from app!!! #
+
 ## programs ##
 - python 3.14
 - docker

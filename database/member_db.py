@@ -8,7 +8,7 @@ class MemberDB:
         conn = db_connection.get_connection()
         cursor = conn.cursor()
 
-        sql = """INSERT INTO members (name, email, is_active, total_borrows) VALUES (%s, %s, %s, %s)"""
+        sql = """INSERT INTO members (name, email) VALUES (%s, %s)"""
         values = list(data.values())
 
         cursor.execute(sql, values)
@@ -114,7 +114,7 @@ class MemberDB:
         conn = db_connection.get_connection()
         cursor = conn.cursor()
 
-        sql = """UPDATE member SET total_borrows = total_borrows + 1 WHERE id = %s"""
+        sql = """UPDATE members SET total_borrows = total_borrows + 1 WHERE id = %s"""
         cursor.execute(sql,(id,))
 
         conn.commit()
@@ -131,18 +131,25 @@ class MemberDB:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
-        sql = """SELECT COUNT(is_active) AS active_members WHERE is_active = TRUE"""
+        sql = """SELECT COUNT(is_active) AS active_members FROM members WHERE is_active = TRUE"""
         cursor.execute(sql)
+        active = cursor.fetchone()
 
         cursor.close()
         conn.close()
 
+        return active
+
     @staticmethod
     def get_top_member():
+
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
-        sql = """SELECT MAX(total_borrows) AS top_member FROM members"""
+        sql = """SELECT id, total_borrows FROM members
+                ORDER BY total_borrows DESC
+                LIMIT 1
+        """
         cursor.execute(sql)
 
         row = cursor.fetchone()

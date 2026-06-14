@@ -17,7 +17,7 @@ class MemberUP(BaseModel):
 router = APIRouter()
 
 
-router.post("")
+@router.post("", status_code=201)
 def add_member(data: Member):
     logging.info("A request to create a new member has been received.")
     try:
@@ -31,8 +31,8 @@ def add_member(data: Member):
         if e.errno == 1062:
             raise HTTPException(status_code=409, detail=f"email alrady exist")
         
-        raise HTTPException(status_code=400, detail=f"bad requests")
-    
+        raise HTTPException(status_code=400, detail=f"bad requests")  
+
 
 @router.get("")
 def get_all_members():
@@ -59,38 +59,57 @@ def get_member_by_id(id: int):
 def update_member(id: int, data: MemberUP):
     logging.info("A request to update member by id has been received.")
 
-    updated = MemberDB.update_member(id, data.model_dump(exclude_none=True))
+    try:
+        updated = MemberDB.update_member(id, data.model_dump(exclude_none=True))
 
-    if not updated:
-        logging.error(f"member id {id} not found")
-        raise HTTPException(status_code=404, detail=f"member id {id} not found")
+        if not updated:
+            logging.error(f"member id {id} not found")
+            raise HTTPException(status_code=404, detail=f"member id {id} not found")
+        
+        logging.info("Request to update member by id completed successfully.")
+        return {"msg": f"member id {id} updated."}
     
-    logging.info("Request to update member by id completed successfully.")
-    return {"msg": f"member id {id} updated."}
+    except IntegrityError as e:
+        logging.exception(e)
 
+        if e.errno == 1062:
+            raise HTTPException(status_code=409, detail=f"email alrady exist")
+        
+        raise HTTPException(status_code=400, detail=f"bad requests") 
 
 @router.patch("/{id}/deactivate")
 def deactivate_member(id: int):
     logging.info("A request to deactive member by id has been received.")
+    found = MemberDB.get_members_by_id(id)
+
+    if not found:
+        logging.info(f"member id {id} not found.")
+        raise HTTPException(status_code=404, detail=f"member id {id} not found.")
+    
     deactive = MemberDB.deactive_member(id)
 
     if not deactive:
-        logging.info(f"member id {id} not found.")
-        raise HTTPException(status_code=404, detail=f"member id {id} not found.")
+        logging.info(f"member id {id} alrady deactive.")
+        raise HTTPException(status_code=400, detail=f"member id {id} alrady deactive.")
     
     logging.info("Request to deactive member by id completed successfully.")
     return {"msg": f"member id {id} become deactive"}
 
 
 @router.patch("/{id}/activate")
-def deactivate_member(id: int):
+def activate_member(id: int):
     logging.info("A request to active member by id has been received.")
-    active = MemberDB.active_member(id)
+    found = MemberDB.get_members_by_id(id)
 
-    if not active:
+    if not found:
         logging.info(f"member id {id} not found.")
         raise HTTPException(status_code=404, detail=f"member id {id} not found.")
     
+    active = MemberDB.active_member(id)
+
+    if not active:
+        logging.info(f"member id {id} alrady active.")
+        raise HTTPException(status_code=400, detail=f"member id {id} alrady active.")
+    
     logging.info("Request to active member by id completed successfully.")
     return {"msg": f"member id {id} become active"}
-        

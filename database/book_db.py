@@ -1,5 +1,5 @@
 import logging
-    from database import db_connection
+from database import db_connection
 
 
 class BookDB:
@@ -8,7 +8,7 @@ class BookDB:
         conn = db_connection.get_connection()
         cursor = conn.cursor()
 
-        sql = """INSERT INTO books (title, author, genreb, is_available, borrowed_by_member_id) VALUES(%s, %s, %s, %s, %s)"""
+        sql = """INSERT INTO books (title, author, genre) VALUES(%s, %s, %s)"""
         values = list(data.values())
 
         cursor.execute(sql, values)
@@ -73,11 +73,11 @@ class BookDB:
         return changed
 
     @staticmethod
-    def set_available(book_id: int, val: bool, member_id: int) -> bool:
+    def set_available(book_id: int, val: bool, member_id: int | None) -> bool:
         conn = db_connection.get_connection()
         cursor = conn.cursor()
 
-        sql = """UPDATE books SET is_available=%s borrowed_by_member_id=%s WHERE id = %s"""
+        sql = """UPDATE books SET is_available=%s, borrowed_by_member_id=%s WHERE id=%s"""
         cursor.execute(sql, (val, member_id, book_id))
 
         logging.info(f"book id {book_id} updated to is_available = {val} borrowed_by_member_id: {member_id}")
@@ -91,7 +91,7 @@ class BookDB:
         return changed
 
     @staticmethod
-    def count_total() -> int:
+    def count_total() -> dict:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -103,10 +103,10 @@ class BookDB:
         cursor.close()
         conn.close()
         
-        return value["total_books"]
+        return value
 
     @staticmethod
-    def count_available_books() -> int:
+    def count_available_books() -> dict:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -118,10 +118,10 @@ class BookDB:
         cursor.close()
         conn.close()
 
-        return row["available_books"]
+        return row
     
     @staticmethod
-    def count_borrowed_books() -> int:
+    def count_borrowed_books() -> dict:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -133,29 +133,32 @@ class BookDB:
         cursor.close()
         conn.close()
 
-        return row["not_available_books"]
+        return row
     
     @staticmethod
-    def count_by_genre(genre: str) -> int:
+    def count_by_genre() -> dict:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
-        sql = """SELECT COUNT(genre) AS sum_books_by_genre FROM books WHERE genre=$s"""
+        sql = """SELECT genre ,COUNT(id) AS total
+        FROM books 
+        GROUP BY genre
+        """
 
-        cursor.execute(sql, (genre,))
-        row = cursor.fetchone()
+        cursor.execute(sql)
+        row = cursor.fetchall()       
 
         cursor.close()
         conn.close()
 
-        return row["sum_books_by_genre"]
+        return row
 
     @staticmethod
     def count_active_borrows_by_member(member_id: int) -> int:
         conn = db_connection.get_connection()
         cursor = conn.cursor(dictionary=True)
 
-        sql = """SELECT COUNT(borrowed_by_member_id) AS total_membet_borrowed_books WHERE borrowed_by_member_id = %s"""
+        sql = """SELECT COUNT(borrowed_by_member_id) AS total_membet_borrowed_books FROM books WHERE borrowed_by_member_id = %s"""
         cursor.execute(sql, (member_id,))
 
         sum_books = cursor.fetchone()
