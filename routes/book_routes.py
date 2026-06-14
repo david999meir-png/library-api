@@ -128,6 +128,6 @@ def return_book(id: int, member_id: int):
         raise HTTPException(status_code=400, detail="book is not borrowed by this member")
     
     BookDB.set_available(id, True, None)
-    \
+    
     logging.info(f"book {id} return by member id {member_id} successfully")
     return {"msg": f"book {id} return by member id {member_id} successfully"}
