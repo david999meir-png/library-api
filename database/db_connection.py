@@ -17,7 +17,7 @@ def create_table():
     sql_book = """
         CREATE TABLE IF NOT EXISTS books(
         id INT PRIMARY KEY AUTO_INCREMENT,
-        title VARCHAR(50) NOT NULL,
+        title VARCHAR(50) NOT NULL, 
         author VARCHAR(50) NOT NULL,
         genre ENUM(Fiction, Non-Fiction, Science, History, Other),
         is_available BOOLEAN NOT NULL,
