@@ -9,11 +9,7 @@ The system will monitor the number of books per member and issue organized repor
 ##
 # docker requirements #
 ## run this docker first! ##
-```docker run --mysql_library my-mysql \```  
-```-e MYSQL_ROOT_PASSWORE=root \```  
-```-e MYSQL_DATABASE=library_db \```  
-```-p 3306:3306 \```  
-```-d mysql:latest```  
+```docker run --name mysql_library -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=library_db -p 3306:3306 -d mysql:latest```  
 ##
 # folders structure #  
 # you must run it from app!!! #
@@ -107,7 +103,7 @@ http requests -> fastapi -> router -> endpoints -> db_dle -> respond
 # you must run it from app!!! #
 
 ## programs ##
-- python 3.14
+- python 3.14 +
 - docker
 ## python library ##
 `python -m venv .venv`
